@@ -547,9 +547,11 @@
             this.currentRoate = currentRoate;
             this.name = name;
             this.centerPoint = centerPoint;
+
             x = x || this.initX;
             y = y || this.initY;
             this.color = color;
+
             let centerPointPos = this.roateList[this.currentRoate][this.centerPoint];
             let roates = this.roateList[this.currentRoate];
             for (let i = 0; i < roates.length; i++) {
@@ -594,7 +596,7 @@
 
             this.currentRoate += 1;
             if (this.currentRoate >= this.roateList.length) {
-                this.currentRoate = -1;
+                this.currentRoate = 0;
             }
         }
 
