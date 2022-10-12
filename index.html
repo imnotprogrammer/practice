@@ -336,7 +336,6 @@
             for (let j = 0; j < 4; j++) {
                 c.lineWidth = 2;
                 let m = nextMap.get(shape);
-                console.log(shape, m);
                 if (m[i][j] === 1) {
                     c.fillStyle = color;
                     c.fillRect(j * cellSize + 2, i * cellSize + 2, cellSize - 4, cellSize - 4)
@@ -594,8 +593,8 @@
             }
 
             this.currentRoate += 1;
-            if (this.currentRoate == this.roateList - 1) {
-                this.currentRoate = 0;
+            if (this.currentRoate >= this.roateList.length) {
+                this.currentRoate = -1;
             }
         }
 
@@ -650,9 +649,10 @@
 
         getRoatePosition(i) {
             let index = this.currentRoate + 1;
-            if (this.currentRoate === this.roateList.length) {
+            if (index >= this.roateList.length) {
                 index = 0;
             }
+            console.log(index);
 
             let roate = this.roateList[index][i];
             let centerPos = this.roateList[index][this.centerPoint];
