@@ -131,50 +131,6 @@
         [null, null, null, null, null, null, null, null, null, null],
         [null, null, null, null, null, null, null, null, null, null],
     ];
-    const nextMap = new Map([
-        ['big', [
-            [0, 0, 0, 0],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [0, 0, 0, 0],
-        ]],
-        ['long', [
-            [0, 0, 0, 0],
-            [1, 1, 1, 1],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ]],
-        ['rlblock', [
-            [0, 0, 0, 0],
-            [0, 0, 1, 0],
-            [1, 1, 1, 0],
-            [0, 0, 0, 0],
-        ]],
-        ['lblock', [
-            [0, 0, 0, 0],
-            [1, 0, 0, 0],
-            [1, 1, 1, 0],
-            [0, 0, 0, 0],
-        ]],
-        ['zblock', [
-            [0, 0, 0, 0],
-            [1, 1, 0, 0],
-            [0, 1, 1, 0],
-            [0, 0, 0, 0],
-        ]],
-        ['rzblock', [
-            [0, 0, 0, 0],
-            [0, 1, 1, 0],
-            [1, 1, 0, 0],
-            [0, 0, 0, 0],
-        ]],
-        ['tblock', [
-            [0, 0, 0, 0],
-            [0, 1, 0, 0],
-            [1, 1, 1, 0],
-            [0, 0, 0, 0],
-        ]],
-    ]);
     const maps = [
         {
             name: "big",
@@ -332,16 +288,16 @@
 
     function renderNext(shape, color) {
         initRenderNext();
-        for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
+        maps.forEach(v => {
+            if (v.name == shape) {
                 c.lineWidth = 2;
-                let m = nextMap.get(shape);
-                if (m[i][j] === 1) {
-                    c.fillStyle = color;
-                    c.fillRect(j * cellSize + 2, i * cellSize + 2, cellSize - 4, cellSize - 4)
-                }
+                c.fillStyle = color;
+                v.roateList[0].forEach(p => {
+                    c.fillRect((p.x + 1) * cellSize + 2, (p.y + 1) * cellSize + 2, cellSize - 4, cellSize - 4)
+                });
+                return;
             }
-        }
+        });
     }
 
     function drawBg() {
