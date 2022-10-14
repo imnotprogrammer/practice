@@ -86,7 +86,6 @@
     </div>
 </body>
 <script>
-
     const downSpeed = 500;
     var canvas = document.getElementById("game-show");
     var d = document.getElementById("next-block-canvas");
@@ -109,28 +108,7 @@
     // 游戏状态 -1-结束 0-开始 1-暂停
     var gameStatus = -1;
 
-    var list = [
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null, null, null],
-    ];
+    var list = [];
     const maps = [
         {
             name: "big",
@@ -215,7 +193,7 @@
 
     function start() {
         gameStatus = 0;
-        setInterval(render, 50);
+        setInterval(render, 16);
     }
 
     /**
@@ -228,16 +206,26 @@
         /** 初始化下一个区块区域 */
         d.width = 4 * cellSize;
         d.height = 4 * cellSize;
-
+        initList();
         drawBg();
         initRenderNext();
         listenEvent();
     }
 
+    /** 初始化list **/
+    function initList() {
+        for (let i = 0; i < my; i++) {
+            let tx = [];
+            for (let j = 0; j < mx; j++) {
+                tx.push(null);
+            }
+            list[i] = tx;
+        }
+        console.log(list);
+    }
+
     function pause() {
-        console.log(gameStatus);
         if (gameStatus == 1) {
-            console.log("recover");
             gameStatus = 0;
             document.getElementById('game-pause').style.display = "none";
             currentBlock.down();
@@ -253,10 +241,9 @@
         if (gameStatus !== 0) {
             return;
         }
-        // 刷选背景板，不然有重叠现象
-        drawBg();
-        // 重新渲染单元格
-        renderCell();
+
+        drawBg();// 刷选背景板，不然有重叠现象
+        renderCell(); // 重新渲染单元格
         if (!currentBlock || !currentBlock.status) {
             if (currentBlock) {
                 computeScore(); // 算分，清楚格子
@@ -264,22 +251,20 @@
                 isOver();       // 判断游戏是否结束
             }
 
-            console.log("new block");
             if (nextBlock) {
                 currentBlock = nextBlock;
                 currentBlock.down();
             } else {
                 currentBlock = getNextBlock();
                 currentBlock.down();
-
             }
+
             nextBlock = getNextBlock();
             renderNext(nextBlock.name, nextBlock.color);
         }
     }
 
     function initRenderNext() {
-
         c.lineWidth = 1;
         c.fillStyle = '#000';
         c.fillRect(0, 0, canvas.width, canvas.height);
@@ -293,7 +278,13 @@
                 c.lineWidth = 2;
                 c.fillStyle = color;
                 v.roateList[0].forEach(p => {
-                    c.fillRect((p.x + 1) * cellSize + 2, (p.y + 1) * cellSize + 2, cellSize - 4, cellSize - 4)
+                    let x = p.x;
+                    let y = p.y;
+                    if (shape !== 'long') {
+                        x += 1;
+                        y += 1;
+                    }
+                    c.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4)
                 });
                 return;
             }
@@ -306,8 +297,8 @@
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = "#eee"
-        // 画横线
 
+        // 画横线
         for (let i = cellSize; i < canvas.height; i += cellSize) {
             ctx.beginPath(); // 新建一条path
             ctx.moveTo(0, i);
@@ -327,9 +318,7 @@
     }
 
     function updateTop() {
-        if (currentBlock.getTopY() < currentY) {
-            currentY = currentBlock.getTopY()
-        }
+        currentY = Math.min(currentBlock.getTopY(), currentY);
     }
 
     function renderCell() {
@@ -348,38 +337,30 @@
         }
     }
 
-
     function listenEvent() {
-        /******************  控制层  *************************/
         document.onkeydown = function (event) {
             let e = event || window.event;
             if (!currentBlock.status && currentBlock.getTopY() < 0) {
                 return
             }
             switch (e.keyCode) {
-                //W
-                case 87:
+                case 87: //W
                     currentBlock.roate();
                     break;
-                //S
-                case 83:
+                case 83: // S
                     currentBlock.move("down");
                     break;
-                //A
-                case 65:
+                case 65: //A
                     currentBlock.move("left");
                     break;
-                //D
-                case 68:
+                case 68: //D
                     currentBlock.move("right");
                     break;
-                // 空格
-                case 32:
+                case 32:// 空格
                     pause();
                     break;
             }
         };
-
     }
 
     function computeScore() {
@@ -417,7 +398,6 @@
     }
 
     function isOver() {
-        console.log(currentY);
         if (currentY <= 0) {
             gameStatus = -1;
             document.getElementById("game-over").style.display = 'block'
@@ -427,14 +407,12 @@
     function getNextBlock() {
         let block = null;
         let randomType = Math.floor(Math.random() * 7);
-
         let initData = maps[randomType];
+
         block = new Block();
         block.initData(initData);
         return block;
     }
-
-
 
     class Cell {
         x = 0;
@@ -477,7 +455,6 @@
                 list[by][bx] = null;
             }
 
-
             if (y >= 0) list[y][x] = this;
             this.x = x;
             this.y = y;
@@ -491,23 +468,19 @@
         centerPoint = 0;
         roateList = [];
         timer = null;
-
         status = true;//true-活动中，false-停止活动
-
         initX = 4;
         initY = -1;
-
         color;
+
         initData({ name, color, currentRoate, roateList, centerPoint, x, y }) {
             this.roateList = roateList;
             this.currentRoate = currentRoate;
             this.name = name;
             this.centerPoint = centerPoint;
-
+            this.color = color;
             x = x || this.initX;
             y = y || this.initY;
-            this.color = color;
-
             let centerPointPos = this.roateList[this.currentRoate][this.centerPoint];
             let roates = this.roateList[this.currentRoate];
             for (let i = 0; i < roates.length; i++) {
@@ -520,10 +493,6 @@
                 }));
                 // 3,-2 3,-1 4,-1, 5,-1
             }
-
-            console.log('create block');
-
-            //this.down();
         }
 
         down() {
@@ -578,30 +547,29 @@
                     nextPos = this.getRoatePosition(i);
                 }
 
-                if (nextPos.y >= my) {
-                    res = true;
-                    break;
-                }
-
-                if (nextPos.x >= mx || nextPos.x < 0) {
-                    res = true;
-                    break;
-                }
-
                 if (nextPos.y < 0) {
                     break;
                 }
-                let b = list[nextPos.y][nextPos.x];
 
-                if (b && !this.cellList.some(v => v.id == b.id)) {
-                    res = true;
+                if (
+                    nextPos.y >= my || // 是否到达底部
+                    nextPos.x >= mx || // 是否碰到右边
+                    nextPos.x < 0      // 是否碰到左边
+                ) {
+                    res = true; // 有碰撞
+                    break;
+                }
+
+                let b = list[nextPos.y][nextPos.x];
+                if (b && !this.cellList.some(v => v.id == b.id)) // 是否碰到了其它方块
+                {
+                    res = true; // 有碰撞
                     break;
                 }
             }
             if (type == 'down' && res) {
                 this.status = false;
             }
-
             return res;
         }
 
@@ -610,7 +578,6 @@
             if (index >= this.roateList.length) {
                 index = 0;
             }
-            console.log(index);
 
             let roate = this.roateList[index][i];
             let centerPos = this.roateList[index][this.centerPoint];
@@ -625,8 +592,6 @@
             return Math.min(...this.cellList.map(v => v.y))
         }
     }
-
-
 </script>
 
 </html>
